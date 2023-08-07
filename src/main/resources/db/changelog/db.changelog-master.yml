@@ -1,0 +1,10 @@
+databaseChangeLog:
+  - include:
+      file: ./changes/initial-schema-change.yml
+      relativeToChangelogFile: true
+  - include:
+      file: ./changes/add-not-null-constraint.yml
+      relativeToChangelogFile: true
+  - include:
+      file: ./changes/insert-data.yml
+      relativeToChangelogFile: true

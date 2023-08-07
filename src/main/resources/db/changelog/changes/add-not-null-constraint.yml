@@ -1,0 +1,9 @@
+databaseChangeLog:
+- changeSet:
+    id: add-not-null-constraint-to-date-col
+    author: Vladislav Matuizo
+    changes:
+    - addNotNullConstraint:
+        tableName:  reservation
+        columnName:  date
+        columnDataType:  TIMESTAMP WITH TIME ZONE
