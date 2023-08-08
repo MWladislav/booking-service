@@ -26,6 +26,7 @@ dependencies {
     implementation 'org.springframework.boot:spring-boot-starter-actuator'
     implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
     implementation 'org.springframework.boot:spring-boot-starter-web'
+    implementation 'org.springframework.boot:spring-boot-starter-aop'
     runtimeOnly 'org.postgresql:postgresql'
 
     liquibaseRuntime 'org.liquibase:liquibase-core:4.16.1'
@@ -36,6 +37,7 @@ dependencies {
     liquibaseRuntime sourceSets.main.output
 
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
+    testImplementation 'io.micrometer:micrometer-observation-test'
 }
 
 liquibase {
@@ -59,9 +61,9 @@ liquibase {
     }
 }
 
-//tasks.named('test') {
-//    useJUnitPlatform()
-//}
+tasks.named('test') {
+    useJUnitPlatform()
+}
 
 hibernate {
     enhancement {

@@ -2,6 +2,7 @@ package com.example.bookingservice.service;
 
 import com.example.bookingservice.domain.Reservation;
 import com.example.bookingservice.dto.ReservationRecord;
+import com.example.bookingservice.observation.WithObservation;
 import com.example.bookingservice.repository.ReservationRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.util.Assert;
@@ -22,11 +23,13 @@ public class DefaultReservationService implements ReservationService {
         this.reservationRepository = reservationRepository;
     }
 
+    @WithObservation
     @Override
     public List<ReservationRecord> getAll() {
         return mapToReservationRecord(reservationRepository.findAll());
     }
 
+    @WithObservation
     @Override
     public List<ReservationRecord> getAllBetweenDates(
             final OffsetDateTime startDate,
@@ -35,6 +38,7 @@ public class DefaultReservationService implements ReservationService {
         return mapToReservationRecord(reservationRepository.findAllByDateBetween(startDate, endDate));
     }
 
+    @WithObservation
     @Override
     public ReservationRecord getById(final Long id) {
         Assert.state(id > 0, "Reservation id should be positive!");
@@ -42,6 +46,7 @@ public class DefaultReservationService implements ReservationService {
         return mapToReservationRecord(reservation);
     }
 
+    @WithObservation
     @Override
     public Long createReservation(final ReservationRecord reservation) {
         var entity = new Reservation();
@@ -51,6 +56,7 @@ public class DefaultReservationService implements ReservationService {
         return reservationRepository.save(entity).getId();
     }
 
+    @WithObservation
     @Override
     public ReservationRecord rescheduleReservation(Long id, final OffsetDateTime newDate) {
         Assert.state(id > 0, "Reservation id should be positive!");
@@ -60,23 +66,11 @@ public class DefaultReservationService implements ReservationService {
         return mapToReservationRecord(reservationRepository.save(reservation));
     }
 
+    @WithObservation
     @Override
     public void cancelReservation(Long id) {
         Assert.state(id > 0, "Reservation id should be positive!");
         reservationRepository.deleteById(id);
-    }
-
-    private static Date parseDate(final String date) {
-        try {
-            return new Date(
-                    SimpleDateFormat.getDateTimeInstance()
-                            .parse(date)
-                            .toInstant()
-                            .toEpochMilli()
-            );
-        } catch (ParseException e) {
-            throw new IllegalArgumentException("Invalid date was provided");
-        }
     }
 
     private static List<ReservationRecord> mapToReservationRecord(final List<Reservation> reservations) {
