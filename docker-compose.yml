@@ -1,0 +1,82 @@
+services:
+
+  # Applications
+
+  reservation-service:
+    # Build image with "./gradlew bootBuildImage from reservation-service project"
+    image: reservation-service:main
+    container_name: reservation-service
+    ports:
+      - 8001:8001
+    environment:
+      - LOKI_URI=http://loki:3100/loki/api/v1/push
+      - MANAGEMENT_ZIPKIN_TRACING_ENDPOINT=http://tempo:9411
+
+  gateway-service:
+    # Build image with "./gradlew bootBuildImage from gateway-service project"
+    image: gateway-service:main
+    container_name: gateway-service
+    depends_on:
+      - redis
+    ports:
+      - 8000:8000
+    environment:
+      - BOOK_SERVICE_URL=http://reservation:8001
+      - LOKI_URI=http://loki:3100/loki/api/v1/push
+      - MANAGEMENT_ZIPKIN_TRACING_ENDPOINT=http://tempo:9411
+      - SPRING_DATA_REDIS_HOST=redis
+
+  # Backing Services
+
+  redis:
+    image: redis:7
+    container_name: redis
+    ports:
+      - 6379:6379
+
+
+  # Observability
+
+  grafana:
+    image: grafana/grafana:9.3.6
+    container_name: grafana
+    depends_on:
+      - loki
+      - prometheus
+      - tempo
+    ports:
+      - "3000:3000"
+    environment:
+      - GF_AUTH_ANONYMOUS_ENABLED=true
+      - GF_AUTH_ANONYMOUS_ORG_ROLE=Admin
+      - GF_AUTH_DISABLE_LOGIN_FORM=true
+    volumes:
+      - ./platform/grafana/datasource.yml:/etc/grafana/provisioning/datasources/datasource.yml
+      - ./platform/grafana/dashboards:/etc/grafana/provisioning/dashboards
+      - ./platform/grafana/grafana.ini:/etc/grafana/grafana.ini
+
+  loki:
+    image: grafana/loki:2.7.3
+    container_name: loki
+    command: -config.file=/etc/loki/local-config.yaml
+    ports:
+      - "3100:3100"
+
+  prometheus:
+    image: prom/prometheus:v2.42.0
+    container_name: prometheus
+    ports:
+      - "8090:8090"
+    volumes:
+      - ./platform/prometheus/prometheus.yml:/etc/prometheus/prometheus.yml
+
+  tempo:
+    image: grafana/tempo:2.0.0
+    container_name: tempo
+    command: -config.file /etc/tempo-config.yml
+    ports:
+      - "3110:3100"     # Tempo
+      - "4317:4317"     # OTLP
+      - "9411:9411"     # Zipkin
+    volumes:
+      - ./platform/tempo/tempo.yml:/etc/tempo-config.yml

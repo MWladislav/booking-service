@@ -7,9 +7,6 @@ import com.example.bookingservice.repository.ReservationRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.util.Assert;
 
-import java.sql.Date;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import java.time.OffsetDateTime;
 import java.util.List;
 import java.util.stream.Collectors;

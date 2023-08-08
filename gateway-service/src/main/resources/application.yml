@@ -1,0 +1,95 @@
+server:
+  port: 8000
+
+logging:
+  pattern:
+    level: "%5p [${spring.application.name:},%X{traceId:-},%X{spanId:-}]"
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: "*"
+  endpoint:
+    health:
+      probes:
+        enabled: true
+      show-details: always
+      show-components: always
+  metrics:
+    tags:
+      application: ${spring.application.name}
+    distribution:
+      percentiles-histogram:
+        all: true
+        http.server.requests: true
+  tracing:
+    sampling:
+      probability: 1.0
+  prometheus:
+    metrics:
+      export:
+        step: 10s
+  info:
+    env:
+      enabled: true
+    java:
+      enabled: true
+    os:
+      enabled: true
+
+
+spring:
+  application:
+    name: gateway-service
+
+
+  cloud:
+    gateway:
+      default-filters:
+        - name: RequestRateLimiter
+          args:
+            redis-rate-limiter:
+              # number of tokens we put in the bucket every second
+              replenishRate: 10
+              # total capacity of the bucket
+              burstCapacity: 20
+              # number of tokens taken by request
+              requestedToken: 1
+      routes:
+        - id: booking-route
+          uri: ${BOOKING_SERVICE_URL:http://localhost:8080}
+          predicates:
+            - Path=/reservations/**
+
+          filters:
+            - AddRequestHeader=X-Tenant,acme
+            - name: CircuitBreaker
+              args:
+                name: bookingService
+                fallbackUri: forward:/fallback
+            - name: Retry
+              args:
+                retries: 3
+                method: GET
+                backoff:
+                  firstBackoff: 50ms
+                  maxBackoff: 500ms
+resilience4j:
+  circuitbreaker:
+    instances:
+      bookingService:
+        #circuit breaker takes last 10 requests
+        sliding-window-size: 10
+        #allow only 5 requests after waiting from open state
+        permitted-number-of-calls-in-half-open-state: 5
+        #rate for circuit breaker to stay open
+        failure-rate-threshold: 50
+        wait-duration-in-open-state:
+          seconds: 10
+        register-health-indicator: true
+  timelimiter:
+    instances:
+      bookingService:
+        timeout-duration:
+          seconds: 3

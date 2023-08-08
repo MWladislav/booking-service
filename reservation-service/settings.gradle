@@ -5,5 +5,5 @@ pluginManagement {
         gradlePluginPortal()
     }
 }
-rootProject.name = 'booking-service'
+rootProject.name = 'reservation-service'
 
