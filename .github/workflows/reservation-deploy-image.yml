@@ -4,7 +4,7 @@ on: push
 env:
   REGISTRY: ghcr.io
   IMAGE_NAME: ${{ github.repository }}/reservation-service
-  VERSION: 1.0
+  TAG_NAME: 1.0.0-SNAPSHOT
 
 jobs:
   package:
@@ -28,7 +28,7 @@ jobs:
           cd reservation-service
           chmod +x gradlew
           ./gradlew bootBuildImage \
-            --imageName ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ env.VERSION }}
+            --imageName ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ env.TAG_NAME }}
       - name: Authenticate with the container registry
         uses: docker/login-action@v2
         with:
@@ -36,4 +36,4 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GHPR }}
       - name: Publish container image
-        run: docker push ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ env.VERSION }}
+        run: docker push ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ env.TAG_NAME }}
