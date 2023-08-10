@@ -1,0 +1,39 @@
+name: Gateway Service - Deploy image on commit
+on: push
+
+env:
+  REGISTRY: ghcr.io
+  IMAGE_NAME: ${{ GITHUB_REPOSITORY }}/gateway-service
+  VERSION: 1.0
+
+jobs:
+  package:
+    name: Package and Publish
+    runs-on: ubuntu-22.04
+    permissions:
+      contents: read
+      packages: write
+      security-events: write
+    steps:
+      - name: Check out source code
+        uses: actions/checkout@v3
+      - name: Set up Java
+        uses: actions/setup-java@v3
+        with:
+          distribution: temurin
+          java-version: 17
+          cache: gradle
+      - name: Build container image
+        run: |
+          cd gateway-service
+          chmod +x gradlew
+          ./gradlew bootBuildImage \
+            --imageName ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ env.VERSION }}
+      - name: Authenticate with the container registry
+        uses: docker/login-action@v2
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GHPR }}
+      - name: Publish container image
+        run: docker push ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ env.VERSION }}
