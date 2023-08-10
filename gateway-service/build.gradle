@@ -52,7 +52,7 @@ tasks.named('test') {
     useJUnitPlatform()
 }
 
-tasks.named('bootBuildImage') {
+/*tasks.named('bootBuildImage') {
     builder = "ghcr.io/vladmatuizo/builder:tiny"
     imageName = "${project.name}:${project.version}"
-}
+}*/
