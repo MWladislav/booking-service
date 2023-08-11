@@ -4,17 +4,18 @@ services:
 
   reservation-service:
     # Build image with "./gradlew bootBuildImage from reservation-service project"
-    image: reservation-service:main
+    image: ghcr.io/vladmatuizo/booking-service/reservation-service:1.0.0-SNAPSHOT
     container_name: reservation-service
     ports:
       - 8001:8001
     environment:
+      - POSTGRES_HOST=postgres
       - LOKI_URI=http://loki:3100/loki/api/v1/push
       - MANAGEMENT_ZIPKIN_TRACING_ENDPOINT=http://tempo:9411
 
   gateway-service:
     # Build image with "./gradlew bootBuildImage from gateway-service project"
-    image: gateway-service:main
+    image: ghcr.io/vladmatuizo/booking-service/gateway-service:1.0.0-SNAPSHOT
     container_name: gateway-service
     depends_on:
       - redis
@@ -27,6 +28,11 @@ services:
       - SPRING_DATA_REDIS_HOST=redis
 
   # Backing Services
+
+  postgres:
+    image: postgres:15.3
+    ports:
+      - 5432:5432
 
   redis:
     image: redis:7
