@@ -3,7 +3,7 @@ databaseChangeLog:
     id: insert-data
     author: Vladislav Matuizo
     preConditions:
-        - onFail: WARN
+        - onFail: MARK_RAN
         - sqlCheck:
               expectedResult: 0
               sql: SELECT COUNT(*) FROM reservation

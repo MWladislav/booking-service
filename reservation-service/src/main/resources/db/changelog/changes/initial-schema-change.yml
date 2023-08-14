@@ -19,16 +19,10 @@ databaseChangeLog:
     id: create-reservation-table
     author: Vladislav Matuizo
     preConditions:
-        - or:
-            - onFail: WARN
-            - not:
-                tableExists:
-                    - tableName: reservation
-            # Second way how to check it
-            - onFail: WARN
-            - sqlCheck:
-                expectedResult: 0
-                sql: SELECT COUNT(*) FROM information_schema.tables where table_name = 'reservation'
+        - onFail: MARK_RAN
+        - sqlCheck:
+              expectedResult: 0
+              sql: SELECT COUNT(*) FROM information_schema.tables where table_name = 'reservation'
     rollback:
         - dropTable:
               tableName: reservations

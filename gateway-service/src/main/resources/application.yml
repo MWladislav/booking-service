@@ -49,16 +49,17 @@ spring:
       default-filters:
         - name: RequestRateLimiter
           args:
+            key-resolver: "#{@userRemoteAddressResolver}"
             redis-rate-limiter:
               # number of tokens we put in the bucket every second
               replenishRate: 10
               # total capacity of the bucket
               burstCapacity: 20
               # number of tokens taken by request
-              requestedToken: 1
+              requestedTokens: 1
       routes:
-        - id: booking-route
-          uri: ${BOOKING_SERVICE_URL:http://localhost:8080}
+        - id: reservation-route
+          uri: ${RESERVATION_SERVICE_URL:http://localhost:8001}
           predicates:
             - Path=/reservations/**
 

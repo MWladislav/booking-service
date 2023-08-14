@@ -6,10 +6,9 @@ import org.springframework.context.annotation.EnableAspectJAutoProxy;
 
 @SpringBootApplication
 @EnableAspectJAutoProxy
-public class BookingServiceApplication {
-
+public class ReservationServiceApplication {
     public static void main(String[] args) {
-        SpringApplication.run(BookingServiceApplication.class, args);
+        SpringApplication.run(ReservationServiceApplication.class, args);
     }
 
 }
